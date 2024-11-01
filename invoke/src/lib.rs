@@ -28,7 +28,7 @@ pub fn invoke_unchecked(
     #[cfg(target_os = "solana")]
     unsafe {
         solana_program::syscalls::sol_invoke_signed_c(
-            &instruction as *const InstructionC as *const u8,
+            instruction as *const InstructionC as *const u8,
             account_infos.as_ptr() as *const u8,
             account_infos.len() as u64,
             signers_seeds.as_ptr() as *const u8,
