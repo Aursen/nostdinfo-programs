@@ -1,4 +1,4 @@
-use invoke::invoke_unchecked;
+use nostd_entrypoint_invoke::invoke_unchecked;
 use solana_nostd_entrypoint::{AccountMetaC, InstructionC, NoStdAccountInfo};
 use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
 
