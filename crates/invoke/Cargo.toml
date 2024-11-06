@@ -1,9 +1,8 @@
 [package]
-name = "system"
+name = "nostd-entrypoint-invoke"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 solana-program.workspace = true
 solana-nostd-entrypoint.workspace = true
-invoke = { path = "../../invoke" }

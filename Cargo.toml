@@ -1,5 +1,5 @@
 [workspace]
-members = ["invoke", "programs/*"]
+members = ["crates/*"]
 resolver = "2"
 
 [workspace.dependencies]
