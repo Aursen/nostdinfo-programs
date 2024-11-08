@@ -42,7 +42,7 @@ impl<'a> CreateAccount<'a> {
         // - [20..52]: owner pubkey
         let mut instruction_data = [UNINIT_BYTE; 52];
         // create account instruction has a '0' discriminator
-        write_bytes(&mut instruction_data, &0u32.to_le_bytes());
+        write_bytes(&mut instruction_data, &[0, 0, 0, 0]);
         write_bytes(&mut instruction_data, &self.lamports.to_le_bytes());
         write_bytes(&mut instruction_data, &self.space.to_le_bytes());
         write_bytes(&mut instruction_data, &self.owner.as_ref());
