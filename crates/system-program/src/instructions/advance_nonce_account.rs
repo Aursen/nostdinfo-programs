@@ -1,4 +1,4 @@
-use nostd_entrypoint_invoke::invoke_unchecked;
+use nostd_entrypoint_invoke::invoke_signed;
 use solana_nostd_entrypoint::{AccountMetaC, InstructionC, NoStdAccountInfo};
 use solana_program::entrypoint::ProgramResult;
 
@@ -44,13 +44,9 @@ impl<'a> AdvanceNonceAccount<'a> {
             data_len: 1,
         };
 
-        invoke_unchecked(
+        invoke_signed(
             &instruction,
-            &[
-                self.account.to_info_c(),
-                self.recent_blockhashes_sysvar.to_info_c(),
-                self.authority.to_info_c(),
-            ],
+            &[self.account, self.recent_blockhashes_sysvar, self.authority],
             signers,
         )
     }

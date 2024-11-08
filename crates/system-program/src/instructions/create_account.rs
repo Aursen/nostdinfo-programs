@@ -1,4 +1,4 @@
-use nostd_entrypoint_invoke::invoke_unchecked;
+use nostd_entrypoint_invoke::invoke_signed;
 use solana_nostd_entrypoint::{AccountMetaC, InstructionC, NoStdAccountInfo};
 use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
 
@@ -54,10 +54,6 @@ impl<'a> CreateAccount<'a> {
             program_id: &crate::ID,
         };
 
-        invoke_unchecked(
-            &instruction,
-            &[self.from.to_info_c(), self.to.to_info_c()],
-            signers,
-        )
+        invoke_signed(&instruction, &[self.from, self.to], signers)
     }
 }
