@@ -3,8 +3,55 @@
 use core::mem::MaybeUninit;
 
 use solana_nostd_entrypoint::{
-    solana_program::entrypoint::ProgramResult, AccountInfoC, InstructionC,
+    solana_program::entrypoint::ProgramResult, AccountInfoC, InstructionC, NoStdAccountInfo,
 };
+use solana_program::program_error::ProgramError;
+
+#[inline(always)]
+pub fn invoke<const ACCOUNTS: usize>(
+    instruction: &InstructionC,
+    account_infos: &[&NoStdAccountInfo; ACCOUNTS],
+) -> ProgramResult {
+    invoke_signed(instruction, account_infos, &[])
+}
+
+pub fn invoke_signed<const ACCOUNTS: usize>(
+    instruction: &InstructionC,
+    accounts: &[&NoStdAccountInfo; ACCOUNTS],
+    signers_seeds: &[&[&[u8]]],
+) -> ProgramResult {
+    if (instruction.accounts_len as usize) < ACCOUNTS {
+        return Err(ProgramError::NotEnoughAccountKeys);
+    }
+
+    const UNINIT: MaybeUninit<AccountInfoC> = MaybeUninit::<AccountInfoC>::uninit();
+    let mut infos = [UNINIT; ACCOUNTS];
+
+    let metas = unsafe { core::slice::from_raw_parts(instruction.accounts, ACCOUNTS) };
+
+    for index in 0..ACCOUNTS {
+        let info = &accounts[index];
+        let meta = &metas[index];
+
+        if *info.key() != unsafe { *meta.pubkey } {
+            return Err(ProgramError::InvalidArgument);
+        }
+
+        if meta.is_writable {
+            let _ = info.try_borrow_mut_data();
+            let _ = info.try_borrow_mut_lamports();
+        } else {
+            let _ = info.try_borrow_data();
+            let _ = info.try_borrow_lamports();
+        }
+
+        infos[index].write(info.to_info_c());
+    }
+
+    invoke_unchecked(instruction, infos, signers_seeds)?;
+
+    Ok(())
+}
 
 /// Invoke a cross-program instruction with signatures but don't enforce Rust's
 /// aliasing rules.
@@ -24,9 +71,9 @@ use solana_nostd_entrypoint::{
 /// borrowed within the calling program, and that data is written to by the
 /// callee, then Rust's aliasing rules will be violated and cause undefined
 /// behavior.
-pub fn invoke_unchecked(
+pub fn invoke_unchecked<const ACCOUNTS: usize>(
     instruction: &InstructionC,
-    account_infos: &[AccountInfoC],
+    account_infos: [MaybeUninit<AccountInfoC>; ACCOUNTS],
     signers_seeds: &[&[&[u8]]],
 ) -> ProgramResult {
     #[cfg(target_os = "solana")]

@@ -1,4 +1,4 @@
-use nostd_entrypoint_invoke::invoke_unchecked;
+use nostd_entrypoint_invoke::invoke_signed;
 use solana_nostd_entrypoint::{AccountMetaC, InstructionC, NoStdAccountInfo};
 use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
 
@@ -69,14 +69,6 @@ impl<'a, 'b, 'c> TransferWithSeed<'a, 'b, 'c> {
             program_id: &crate::ID,
         };
 
-        invoke_unchecked(
-            &instruction,
-            &[
-                self.from.to_info_c(),
-                self.base.to_info_c(),
-                self.to.to_info_c(),
-            ],
-            signers,
-        )
+        invoke_signed(&instruction, &[self.from, self.base, self.to], signers)
     }
 }
