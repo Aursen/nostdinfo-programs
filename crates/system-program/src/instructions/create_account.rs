@@ -1,4 +1,4 @@
-use nostd_entrypoint_invoke::invoke_signed;
+use nostd_entrypoint_invoke::{invoke_signed, write_bytes, UNINIT_BYTE};
 use solana_nostd_entrypoint::{AccountMetaC, InstructionC, NoStdAccountInfo};
 use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
 
@@ -40,16 +40,17 @@ impl<'a> CreateAccount<'a> {
         // - [4..12 ]: lamports
         // - [12..20]: account space
         // - [20..52]: owner pubkey
-        let mut instruction_data = [0; 52];
+        let mut instruction_data = [UNINIT_BYTE; 52];
         // create account instruction has a '0' discriminator
-        instruction_data[4..12].copy_from_slice(&self.lamports.to_le_bytes());
-        instruction_data[12..20].copy_from_slice(&self.space.to_le_bytes());
-        instruction_data[20..52].copy_from_slice(self.owner.as_ref());
+        write_bytes(&mut instruction_data, &0u32.to_le_bytes());
+        write_bytes(&mut instruction_data, &self.lamports.to_le_bytes());
+        write_bytes(&mut instruction_data, &self.space.to_le_bytes());
+        write_bytes(&mut instruction_data, &self.owner.as_ref());
 
         let instruction = InstructionC {
             accounts: account_metas.as_ptr(),
             accounts_len: 2,
-            data: instruction_data.as_ptr(),
+            data: instruction_data.as_ptr() as _,
             data_len: 52,
             program_id: &crate::ID,
         };
