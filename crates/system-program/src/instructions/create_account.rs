@@ -43,9 +43,9 @@ impl<'a> CreateAccount<'a> {
         let mut instruction_data = [UNINIT_BYTE; 52];
         // create account instruction has a '0' discriminator
         write_bytes(&mut instruction_data, &[0, 0, 0, 0]);
-        write_bytes(&mut instruction_data, &self.lamports.to_le_bytes());
-        write_bytes(&mut instruction_data, &self.space.to_le_bytes());
-        write_bytes(&mut instruction_data, &self.owner.as_ref());
+        write_bytes(&mut instruction_data[4..12], &self.lamports.to_le_bytes());
+        write_bytes(&mut instruction_data[12..20], &self.space.to_le_bytes());
+        write_bytes(&mut instruction_data[20..52], &self.owner.as_ref());
 
         let instruction = InstructionC {
             accounts: account_metas.as_ptr(),
