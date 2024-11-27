@@ -4,4 +4,4 @@ resolver = "2"
 
 [workspace.dependencies]
 solana-program = "1.18"
-solana-nostd-entrypoint = { git = "https://github.com/Aursen/solana-nostd-entrypoint" }
+solana-nostd-entrypoint = { git = "https://github.com/cavemanloverboy/solana-nostd-entrypoint" }
